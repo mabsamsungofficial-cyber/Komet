@@ -1,14 +1,13 @@
-import crypto from "crypto";
 import { NextResponse } from "next/server";
-import { getInstagramAuthUrl } from "@/lib/instagram";
 
 export async function GET() {
-  try {
-    const state = crypto.randomBytes(16).toString("hex");
-    const authUrl = getInstagramAuthUrl(state);
-    return NextResponse.redirect(authUrl);
-  } catch (err) {
-    const message = err instanceof Error ? err.message : "Auth config error";
-    return NextResponse.json({ error: message }, { status: 500 });
-  }
+  const metaAppId = process.env.NEXT_PUBLIC_META_APP_ID;
+  const configId = process.env.FACEBOOK_CONFIG_ID;
+  const redirectUri = `${process.env.NEXT_PUBLIC_APP_URL}/api/auth/instagram/callback`;
+
+  const authUrl = `https://www.facebook.com/dialog/oauth?client_id=${metaAppId}&config_id=${configId}&redirect_uri=${encodeURIComponent(
+    redirectUri
+  )}&response_type=code&scope=instagram_basic,instagram_manage_messages`;
+
+  return NextResponse.redirect(authUrl);
 }
